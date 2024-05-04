@@ -1,0 +1,134 @@
+networks:
+  devnet2:
+    labels:
+      e2e: true
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+      - subnet: 10.186.73.0/24
+
+services:
+  validator01:
+    labels:
+      e2e: true
+    container_name: validator01
+    image: omniops/halo:2666ddd
+    init: true
+    ports:
+    - 26656
+    - 5701:26657
+    - 6701:26660
+    - 6060
+    volumes:
+    - ./validator01:/halo
+    depends_on:
+      validator01_evm:
+        condition: service_healthy
+    networks:
+      devnet2:
+        ipv4_address: 10.186.73.2
+
+  validator02:
+    labels:
+      e2e: true
+    container_name: validator02
+    image: omniops/halo:2666ddd
+    init: true
+    ports:
+    - 26656
+    - 5702:26657
+    - 6702:26660
+    - 6060
+    volumes:
+    - ./validator02:/halo
+    depends_on:
+      validator02_evm:
+        condition: service_healthy
+    networks:
+      devnet2:
+        ipv4_address: 10.186.73.3
+
+  validator01_evm-init:
+    labels:
+      e2e: true
+    container_name: validator01_evm-init
+    image: "ethereum/client-go:v1.14.0"
+    command: --state.scheme=path --datadir=/geth init /geth/genesis.json
+    volumes:
+      - ./validator01_evm:/geth
+    networks:
+      devnet2:
+
+  validator01_evm:
+    labels:
+      e2e: true
+    container_name: validator01_evm
+    image: "ethereum/client-go:v1.14.0"
+    command:
+      - --config=/geth/config.toml
+      # Flags not available via config.toml
+      - --nat=extip:10.186.73.100
+      - --pprof
+      - --pprof.addr=0.0.0.0
+      - --metrics
+    ports:
+      - 8551
+      - 8000:8545
+      - 30303
+      - 8546
+      - 6060
+    depends_on:
+      validator01_evm-init:
+        condition: service_completed_successfully
+    healthcheck:
+      test: "nc -z localhost 8545"
+      interval: 1s
+      retries: 30
+    volumes:
+      - ./validator01_evm:/geth
+    networks:
+      devnet2:
+        ipv4_address: 10.186.73.100
+
+  validator02_evm-init:
+    labels:
+      e2e: true
+    container_name: validator02_evm-init
+    image: "ethereum/client-go:v1.14.0"
+    command: --state.scheme=path --datadir=/geth init /geth/genesis.json
+    volumes:
+      - ./validator02_evm:/geth
+    networks:
+      devnet2:
+
+  validator02_evm:
+    labels:
+      e2e: true
+    container_name: validator02_evm
+    image: "ethereum/client-go:v1.14.0"
+    command:
+      - --config=/geth/config.toml
+      # Flags not available via config.toml
+      - --nat=extip:10.186.73.101
+      - --pprof
+      - --pprof.addr=0.0.0.0
+      - --metrics
+    ports:
+      - 8551
+      - 8001:8545
+      - 30303
+      - 8546
+      - 6060
+    depends_on:
+      validator02_evm-init:
+        condition: service_completed_successfully
+    healthcheck:
+      test: "nc -z localhost 8545"
+      interval: 1s
+      retries: 30
+    volumes:
+      - ./validator02_evm:/geth
+    networks:
+      devnet2:
+        ipv4_address: 10.186.73.101

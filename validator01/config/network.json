@@ -1,0 +1,23 @@
+{
+  "name": "devnet",
+  "chains": [
+    {
+      "id": 16561,
+      "name": "omni_evm",
+      "rpcurl": "http://validator01_evm:8545",
+      "portal_address": "0xDd4a9DCC21AE302EfA78e64495E80765A441dd5e",
+      "deploy_height": 0,
+      "block_period": "2s",
+      "finalization_start": "finalized"
+    },
+    {
+      "id": 1016561,
+      "name": "omni_consensus",
+      "rpcurl": "",
+      "portal_address": "",
+      "deploy_height": 1,
+      "block_period": "2s",
+      "finalization_start": ""
+    }
+  ]
+}
