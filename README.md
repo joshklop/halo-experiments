@@ -27,7 +27,7 @@ git reset --hard
 
 Bearachain's [Polaris](https://github.com/berachain/polaris/tree/main) serves a similar function. Unlike Halo, Polaris is [meant to be used](https://github.com/berachain/polaris/tree/main/cosmos/x/evm) as a Cosmos SDK module. In Polaris, Engine API calls are manually triggered via a Cosmos SDK message, whereas Halo [automatically translates](https://github.com/omni-network/omni/blob/fdaae16f6d28691edc984df7adbcb21c29e74aa5/halo/app/app.go#L110-L122) ABCI calls into Engine API calls.
 
-Another option is to manually instrument an Execution Layer client to fulfill the ABCI. While a proper implementation will be more efficient by only storing chain data at the CometBFT layer, it has a number of drawbacks, including:
+Another option is to manually instrument an Execution Layer client to fulfill the ABCI. While a proper implementation may be marginally more efficient, it has a number of drawbacks, including:
 
 1. Difficult to get right. The EVM still expects some chain data to be available (see the `BLOCKHASH` opcode), so an efficient implementation cannot disregard storage altogether. It will need to modify the EVM and/or storage layer with an appropriate in-memory cache.
 1. Client diversity and development speed. By wrapping the Engine API with translation logic, Halo and Polaris can use any battle-tested client implementations out of the box, improving security and decreasing maitenance burden.
